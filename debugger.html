@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: content-box;
+    }
+
+    .container {
+      width: 1080px;
+      margin: 0 auto;
+      padding: 20px 0;
+    }
+
+    canvas {
+      border: 1px solid red;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container">
+    <canvas width="1080" height="1440" data-index="1" style="width: 1080px; height: 1440px;"></canvas>
+  </div>
+  <script>
+    const canvas = document.querySelector('canvas')
+    const watermark = '我是水印'
+
+    function addWaterMark() {
+      // 平铺水印
+      let canvasWater = document.createElement('canvas')
+      // 水印大小
+      canvasWater.width = canvas.width / 5
+      canvasWater.height = canvas.height / 6
+
+      const ctxWater = canvasWater.getContext('2d')
+      ctxWater.rect(0, 0, canvasWater.width, canvasWater.height)
+      ctxWater.stroke()
+      ctxWater.font = '16px Microsoft Yahei'
+      ctxWater.fillStyle = 'rgba(0, 0, 0, 0.2)'
+      ctxWater.rotate((-20 * Math.PI) / 180)
+      ctxWater.fillText(watermark, 0, canvasWater.height / 2 + 20)
+      ctxWater.rotate((20 * Math.PI) / 180)
+
+      // 绘制重复的水印
+      const ctx = canvas.getContext('2d')
+      ctx.fillStyle = ctx.createPattern(canvasWater, 'repeat')
+      ctx.fillRect(0, 0, canvas.width, canvas.height)
+      console.log(canvas.dataset.index)
+    }
+  </script>
+</body>
+
+</html>
