@@ -20,7 +20,7 @@
       </div>
     </div>
     <button class="btn debugger_btn" @click="onDebugger">调试图片</button>
-    <button class="btn" @click="onStart">下载图片</button>
+    <button class="btn" @click="onDownload">下载图片</button>
   </div>
   <div class="preview">
     <img :src="imgPreview" alt="" />
@@ -34,8 +34,9 @@ import html2canvas from 'html2canvas'
 import axios from 'axios'
 import { ref, nextTick } from 'vue'
 import { dom } from './dom'
+import { addGridBg, addWaterMark, tagAToDownload } from './utils'
 
-const watermark = ref('我是关键字')
+const watermark = ref('')
 const firstPageSize = ref(6)
 const pageSize = ref(10)
 const maxPage = ref(40)
@@ -55,25 +56,31 @@ const onDebugger = () => {
     downloadImages()
   })
 }
-const onStart = () => {
-  if (!address.value.trim()) {
+const onDownload = () => {
+  if (!address.value || !address.value.trim()) {
     alert('请输入文章地址')
+    return
   }
   debuggerMode.value = false
   pagesRef.value.innerHTML = ''
+  const { protocol, hostname } = window.location
   axios({
     method: 'get',
-    url: 'http://localhost:5002/zhihu',
+    url: `${protocol}//${hostname}:5002/zhihu`,
     params: {
       url: address.value
     }
-  }).then((res) => {
-    content.value = res.data
-    nextTick(() => {
-      insertPages()
-      downloadImages()
-    })
   })
+    .then((res) => {
+      content.value = res.data
+      nextTick(() => {
+        insertPages()
+        downloadImages()
+      })
+    })
+    .catch((err) => {
+      alert(err)
+    })
 }
 // 下载图片
 const downloadImages = async () => {
@@ -82,9 +89,9 @@ const downloadImages = async () => {
   pageList.forEach((p, i) => {
     setTimeout(() => {
       // 调试用代码
-      // i < 1 && getImage(p, i + 1)
+      // i < 4 && getImage(p, i + 1)
       getImage(p, i + 1)
-    }, i * 500)
+    }, i * 200)
   })
 }
 
@@ -119,10 +126,16 @@ function getImage(targetEle, index) {
     height: 1440
     // backgroundColor: 'transparent'
   }).then((canvas) => {
+    // 添加网格背景
+    addGridBg(canvas)
+
+    // 添加关键字水印
     const text = watermark.value.trim()
     text && addWaterMark(canvas, text)
 
     const base64Url = canvas.toDataURL('image/png')
+    // jpeg 格式可以设置图片质量
+    // const base64Url = canvas.toDataURL('image/jpeg', 0.8)
 
     // 调试用代码
     imgPreview.value = base64Url
@@ -133,52 +146,5 @@ function getImage(targetEle, index) {
     }
     return base64Url
   })
-}
-// 下载函数
-function tagAToDownload({ url, title = '', target = '_blank' }) {
-  let tagA = document.createElement('a')
-  tagA.setAttribute('href', url)
-  tagA.setAttribute('download', title)
-  tagA.setAttribute('target', target)
-  document.body.appendChild(tagA)
-  tagA.click()
-  document.body.removeChild(tagA)
-}
-// 平铺水印
-function addWaterMark(canvas, watermark) {
-  const ctx = canvas.getContext('2d')
-
-  // 平铺网格
-  let canvasGrid = document.createElement('canvas')
-  canvasGrid.width = 60
-  canvasGrid.height = 60
-  const ctxGrid = canvasGrid.getContext('2d')
-  ctxGrid.strokeStyle = 'rgba(0, 0, 0, 0.1)'
-  ctxGrid.strokeRect(0, 0, canvasGrid.width, canvasGrid.height)
-  // 绘制网格
-  // ctx.fillStyle = ctx.createPattern(canvasGrid, 'repeat')
-  // ctx.fillRect(0, 0, canvas.width * 10, canvas.height * 40)
-
-  // 平铺水印
-  let canvasWater = document.createElement('canvas')
-  // 水印大小
-  canvasWater.width = canvas.width / 6
-  canvasWater.height = canvas.height / 10
-
-  const ctxWater = canvasWater.getContext('2d')
-  ctxWater.strokeStyle = 'rgba(0, 0, 0, 0.1)'
-  ctxWater.strokeRect(0, 0, canvasWater.width, canvasWater.height)
-  ctxWater.font = '16px Microsoft Yahei'
-  ctxWater.fillStyle = 'rgba(0, 0, 0, 0.2)'
-  // 水平水印
-  ctxWater.fillText(watermark, 30, 60)
-  // 旋转水印
-  // ctxWater.rotate((-20 * Math.PI) / 180)
-  // ctxWater.fillText(watermark, 0, canvasWater.height / 2 + 20)
-  // ctxWater.rotate((20 * Math.PI) / 180)
-
-  // 绘制重复的水印
-  ctx.fillStyle = ctx.createPattern(canvasWater, 'repeat')
-  ctx.fillRect(0, 0, canvas.width * 10, canvas.height * 50)
 }
 </script>
