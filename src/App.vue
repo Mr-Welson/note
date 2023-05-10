@@ -91,7 +91,7 @@ const downloadImages = async () => {
       // 调试用代码
       // i < 4 && getImage(p, i + 1)
       getImage(p, i + 1)
-    }, i * 200)
+    }, i * 300)
   })
 }
 

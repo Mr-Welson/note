@@ -6,7 +6,7 @@ export function addGridBg(canvas) {
   canvasGrid.width = 60
   canvasGrid.height = 60
   const ctxGrid = canvasGrid.getContext('2d')
-  ctxGrid.strokeStyle = 'rgba(0, 0, 0, 0.05)'
+  ctxGrid.strokeStyle = 'rgba(0, 0, 0, 0.1)'
   ctxGrid.strokeRect(0, 0, canvasGrid.width, canvasGrid.height)
   // 绘制网格
   ctx.fillStyle = ctx.createPattern(canvasGrid, 'repeat')
