@@ -39,7 +39,7 @@ import { addGridBg, addWaterMark, tagAToDownload } from './utils'
 const watermark = ref('')
 const firstPageSize = ref(6)
 const pageSize = ref(10)
-const maxPage = ref(40)
+const maxPage = ref(50)
 const address = ref()
 // 'https://www.zhihu.com/market/paid_column/1636449898307194880/section/1637814430120218624'
 
