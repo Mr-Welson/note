@@ -89,7 +89,7 @@ const downloadImages = async () => {
   pageList.forEach((p, i) => {
     setTimeout(() => {
       // 调试用代码
-      // i < 4 && getImage(p, i + 1)
+      // i < 2 && getImage(p, i + 1)
       getImage(p, i + 1)
     }, i * 300)
   })

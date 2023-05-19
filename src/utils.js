@@ -10,7 +10,7 @@ export function addGridBg(canvas) {
   ctxGrid.strokeRect(0, 0, canvasGrid.width, canvasGrid.height)
   // 绘制网格
   ctx.fillStyle = ctx.createPattern(canvasGrid, 'repeat')
-  ctx.fillRect(0, 0, canvas.width * 10, canvas.height * 40)
+  ctx.fillRect(0, 0, canvas.width * 10, canvas.height * 60)
 }
 
 // 平铺水印
@@ -37,7 +37,7 @@ export function addWaterMark(canvas, watermark) {
 
   // 绘制重复的水印
   ctx.fillStyle = ctx.createPattern(canvasWater, 'repeat')
-  ctx.fillRect(0, 0, canvas.width * 10, canvas.height * 50)
+  ctx.fillRect(0, 0, canvas.width * 10, canvas.height * 60)
 }
 
 // 下载函数
