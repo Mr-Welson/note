@@ -1,5 +1,11 @@
 <template>
-  <div class="layout" :class="{ dark: themeMode === 'dark', light: themeMode === 'light' }">
+  <div
+    class="layout bgimage"
+    :class="{
+      dark: themeMode === 'dark',
+      light: themeMode === 'light'
+    }"
+  >
     <div class="header">
       <input class="address" placeholder="请输入知乎章节地址" v-model="address" />
       <div class="config_list">
@@ -103,7 +109,7 @@ const height = 1500
 const maxTextLength = 22
 
 // 是否打印网格背景(默认显示)
-const gridMode = ref('1')
+const gridMode = ref('0')
 // 主题模式(默认浅色)
 const themeMode = ref('light')
 // 水印内容, 为空时不打印水印
@@ -130,7 +136,7 @@ const imgPreview = ref('')
 const debuggerMode = ref(false)
 
 const onGridChange = (e) => {
-  gridMode.value = !!+e.target.value
+  gridMode.value = e.target.value
 }
 const onThemeChange = (e) => {
   themeMode.value = e.target.value
@@ -181,7 +187,7 @@ const downloadImages = async () => {
       // 调试用代码
       // i < 1 && getImage(p, i + 1)
       getImage(p, i + 1)
-    }, i * 200)
+    }, i * 300)
   })
 }
 
@@ -206,7 +212,7 @@ function insertPages() {
     if (i === firstPageSize.value - 1 || pCount >= pageSize.value || i === pList.length - 1) {
       // 组装页
       const div = document.createElement('div')
-      div.innerHTML = `<span class="number"> - ${pageNumber} -</span>`
+      div.innerHTML = `<span class="page_number"> - ${pageNumber} -</span>`
       div.setAttribute('class', 'page')
       div.setAttribute('style', `height:${height}px`)
       pagesRef.value.appendChild(div)
@@ -226,7 +232,7 @@ function getImage(targetEle, index) {
     // backgroundColor: 'transparent'
   }).then((canvas) => {
     // 添加网格背景
-    gridMode.value && addGridBg(canvas, themeMode.value)
+    gridMode.value === '1' && addGridBg(canvas, themeMode.value)
 
     // 添加关键字水印
     const text = watermark.value.trim()
@@ -240,7 +246,7 @@ function getImage(targetEle, index) {
     imgPreview.value = base64Url
 
     if (!debuggerMode.value) {
-      const result = { url: base64Url, title: `${index}.png` }
+      const result = { url: base64Url, title: `${themeMode.value}_${index}.png` }
       tagAToDownload(result)
     }
     return base64Url

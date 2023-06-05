@@ -147,11 +147,15 @@ option {
   background-color: #000;
   color: #fff;
 }
+/* 背景图 */
+.layout.bgimage .page {
+  background: url('./bg01.jpg') center/cover no-repeat;
+}
 
-.number {
+.page_number {
   position: absolute;
   bottom: 16px;
-  right: 100px;
+  right: 15%;
 }
 p {
   padding: 0 15%;
