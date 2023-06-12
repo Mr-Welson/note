@@ -167,7 +167,19 @@ const onDownload = () => {
     }
   })
     .then((res) => {
-      content.value = res.data
+      let contentValue = res.data
+      // 和谐敏感词
+      const words = [
+        ['霸凌', '8零'],
+        ['死', 's'],
+        ['杀人', '鲨任'],
+        ['吸毒', '吸du']
+      ]
+      words.forEach((w) => {
+        contentValue = contentValue.replaceAll(w[0], w[1])
+      })
+
+      content.value = contentValue
       nextTick(() => {
         insertPages()
         downloadImages()
