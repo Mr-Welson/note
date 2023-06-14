@@ -16,7 +16,16 @@ router.get('/zhihu', async function (ctx) {
       if (!error && response.statusCode == 200) {
         const $ = cheerio.load(body)
         const contents = $('#manuscript')
-        // TODO: 移除空的 P 标签
+        const pList = $('#manuscript p')
+        pList.each(function () {
+          // 去除空的P标签
+          if (!$(this).text().trim()) {
+            $(this).remove()
+          } else {
+            // 只保留文字, 去除 a 链接及其他无用标签
+            $(this).text($(this).text())
+          }
+        })
         resolve(contents.html())
       } else {
         resolve({ message: 'error', data: response })
