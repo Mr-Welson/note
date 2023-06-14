@@ -79,6 +79,10 @@
           </select>
         </div> -->
         <div class="config_item watermark">
+          <div class="label">敏感词：</div>
+          <input class="value" placeholder="格式: AA|A*,BB,B*" v-model="sensitiveWords" />
+        </div>
+        <div class="config_item watermark">
           <div class="label">关键字：</div>
           <input class="value" placeholder="请输入关键字" v-model="watermark" />
         </div>
@@ -101,6 +105,14 @@ import { ref, nextTick } from 'vue'
 import { dom } from './dom'
 import { addGridBg, addWaterMark, tagAToDownload } from './utils'
 
+// 内置敏感词
+const defaultWords = [
+  ['霸凌', '霸0'],
+  ['死', 'si'],
+  ['杀人', '鲨任'],
+  ['吸毒', '吸du'],
+  ['强奸', '强*']
+]
 // 页面比例
 // const aspectRatio = 3 / 4
 // const height = 1080 / aspectRatio
@@ -114,6 +126,8 @@ const gridMode = ref('0')
 const themeMode = ref('light')
 // 水印内容, 为空时不打印水印
 const watermark = ref('')
+// 敏感词
+const sensitiveWords = ref('')
 // 首页显示行数
 const firstPageSize = ref(5)
 // 页面显示行数
@@ -168,13 +182,15 @@ const onDownload = () => {
   })
     .then((res) => {
       let contentValue = res.data
-      // 和谐敏感词
-      const words = [
-        ['霸凌', '8零'],
-        ['死', 's'],
-        ['杀人', '鲨任'],
-        ['吸毒', '吸du']
-      ]
+      // 处理用户敏感词
+      const customWords = []
+      if (sensitiveWords.value.trim()) {
+        sensitiveWords.value.split(',').forEach((text) => {
+          customWords.push(text.split('|'))
+        })
+      }
+      // 合并内置敏感词
+      const words = [].concat(defaultWords, customWords)
       words.forEach((w) => {
         contentValue = contentValue.replaceAll(w[0], w[1])
       })
@@ -197,7 +213,7 @@ const downloadImages = async () => {
   pageList.forEach((p, i) => {
     setTimeout(() => {
       // 调试用代码
-      // i < 1 && getImage(p, i + 1)
+      // i < 2 && getImage(p, i + 1)
       getImage(p, i + 1)
     }, i * 300)
   })
