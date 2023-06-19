@@ -33,9 +33,9 @@ export function addWaterMark(canvas, watermark, themeMode) {
   ctxWater.font = '16px Microsoft Yahei'
 
   if (themeMode === 'dark') {
-    ctxWater.fillStyle = 'rgba(255, 255, 255, 0.15)'
+    ctxWater.fillStyle = 'rgba(255, 255, 255, 0.25)'
   } else {
-    ctxWater.fillStyle = 'rgba(0, 0, 0, 0.07)'
+    ctxWater.fillStyle = 'rgba(0, 0, 0, 0.1)'
   }
   // 水平水印
   ctxWater.fillText(watermark, 0, 20)

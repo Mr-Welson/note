@@ -22,29 +22,6 @@
           <input type="number" class="value" placeholder="请设置截图最大页码" v-model="maxPage" />
         </div>
         <div class="config_item">
-          <div class="label">网格背景：</div>
-          <div class="value radio_wrapper">
-            <label>
-              <input
-                type="radio"
-                name="grid"
-                value="1"
-                :checked="gridMode === '1'"
-                @change="onGridChange"
-              />是
-            </label>
-            <label>
-              <input
-                type="radio"
-                name="grid"
-                value="0"
-                :checked="gridMode === '0'"
-                @change="onGridChange"
-              />否
-            </label>
-          </div>
-        </div>
-        <div class="config_item">
           <div class="label">主题模式：</div>
           <div class="value radio_wrapper">
             <label>
@@ -69,7 +46,52 @@
             </label>
           </div>
         </div>
-        <div class="config_item"></div>
+        <div class="config_item">
+          <div class="label">首页截图：</div>
+          <div class="value radio_wrapper">
+            <label>
+              <input
+                type="radio"
+                name="page"
+                value="1"
+                :checked="firstPage === '1'"
+                @change="onfirstPageChange"
+              />是
+            </label>
+            <label>
+              <input
+                type="radio"
+                name="page"
+                value="0"
+                :checked="firstPage === '0'"
+                @change="onfirstPageChange"
+              />否
+            </label>
+          </div>
+        </div>
+        <div class="config_item">
+          <div class="label">网格背景：</div>
+          <div class="value radio_wrapper">
+            <label>
+              <input
+                type="radio"
+                name="grid"
+                value="1"
+                :checked="gridMode === '1'"
+                @change="onGridChange"
+              />是
+            </label>
+            <label>
+              <input
+                type="radio"
+                name="grid"
+                value="0"
+                :checked="gridMode === '0'"
+                @change="onGridChange"
+              />否
+            </label>
+          </div>
+        </div>
         <!-- <div class="config_item">
           <div class="label">页面比例：</div>
           <select class="value select_item">
@@ -109,14 +131,16 @@ import { addGridBg, addWaterMark, tagAToDownload } from './utils'
 const defaultWords = [
   ['霸凌', '霸0'],
   ['死', 'si'],
-  ['杀人', '鲨任'],
+  ['杀人', '鲨人'],
   ['吸毒', '吸du'],
-  ['强奸', '强*']
+  ['强奸', '强*'],
+  ['自杀', '自鲨']
 ]
 // 页面比例
 // const aspectRatio = 3 / 4
 // const height = 1080 / aspectRatio
-const height = 1500
+const height = 1440
+// const height = 1500
 // 一行最大字数 34px:22 | 35px:21 | 36px:20
 const maxTextLength = 22
 
@@ -124,6 +148,8 @@ const maxTextLength = 22
 const gridMode = ref('0')
 // 主题模式(默认浅色)
 const themeMode = ref('light')
+// 是否只截首页
+const firstPage = ref('0')
 // 水印内容, 为空时不打印水印
 const watermark = ref('')
 // 敏感词
@@ -148,12 +174,17 @@ const pagesRef = ref(null)
 const imgPreview = ref('')
 // 是否调试模式
 const debuggerMode = ref(false)
-
+// 是否显示网格
 const onGridChange = (e) => {
   gridMode.value = e.target.value
 }
+// 主题切换
 const onThemeChange = (e) => {
   themeMode.value = e.target.value
+}
+// 是否只截首页
+const onfirstPageChange = (e) => {
+  firstPage.value = e.target.value
 }
 
 // 调试按钮
@@ -212,9 +243,12 @@ const downloadImages = async () => {
   const pageList = Array.from(pageTags).slice(0, maxPage.value || 40)
   pageList.forEach((p, i) => {
     setTimeout(() => {
-      // 调试用代码
-      // i < 2 && getImage(p, i + 1)
-      getImage(p, i + 1)
+      // 调试模式或只截首页
+      if (firstPage.value === '1' || debuggerMode.value) {
+        i < 1 && getImage(p, i + 1)
+      } else {
+        getImage(p, i + 1)
+      }
     }, i * 300)
   })
 }
