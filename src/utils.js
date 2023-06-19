@@ -24,21 +24,23 @@ export function addWaterMark(canvas, watermark, themeMode) {
   // 平铺水印
   let canvasWater = document.createElement('canvas')
   // 水印大小
-  canvasWater.width = canvas.width / 8
-  canvasWater.height = canvas.height / 20
+  const canvasWaterWidth = canvas.width / 6
+  const canvasWaterHeight = canvas.height / 12
+  canvasWater.width = canvasWaterWidth
+  canvasWater.height = canvasWaterHeight
 
   const ctxWater = canvasWater.getContext('2d')
-  // ctxWater.strokeStyle = 'rgba(0, 0, 0, 0.1)'
-  // ctxWater.strokeRect(0, 0, canvasWater.width, canvasWater.height)
+  // ctxWater.strokeStyle = 'rgba(255, 255, 255, 0.8)'
+  // ctxWater.strokeRect(0, 0, canvasWaterWidth, canvasWaterHeight)
+  
   ctxWater.font = '16px Microsoft Yahei'
-
   if (themeMode === 'dark') {
-    ctxWater.fillStyle = 'rgba(255, 255, 255, 0.25)'
+    ctxWater.fillStyle = 'rgba(255, 255, 255, 0.2)'
   } else {
-    ctxWater.fillStyle = 'rgba(0, 0, 0, 0.1)'
+    ctxWater.fillStyle = 'rgba(0, 0, 0, 0.15)'
   }
   // 水平水印
-  ctxWater.fillText(watermark, 0, 20)
+  ctxWater.fillText(watermark, 30, 60)
   // 旋转水印
   // ctxWater.rotate((-20 * Math.PI) / 180)
   // ctxWater.fillText(watermark, 0, canvasWater.height / 2 + 20)
@@ -47,6 +49,8 @@ export function addWaterMark(canvas, watermark, themeMode) {
   // 绘制重复的水印
   ctx.fillStyle = ctx.createPattern(canvasWater, 'repeat')
   ctx.fillRect(0, 0, canvas.width * 10, canvas.height * 100)
+  canvasWater = null
+  canvas = null
 }
 
 // 下载函数

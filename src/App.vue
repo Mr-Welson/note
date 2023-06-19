@@ -109,14 +109,14 @@
           <input class="value" placeholder="请输入关键字" v-model="watermark" />
         </div>
       </div>
-      <button class="btn debugger_btn" @click="onDebugger">调试图片</button>
+      <button class="btn debugger_btn" @click="onDebugger">本地链接</button>
       <button class="btn" @click="onDownload">下载图片</button>
     </div>
     <div class="preview">
       <img :src="imgPreview" alt="" />
     </div>
-    <div class="container" v-html="content"></div>
     <div class="page_list" ref="pagesRef"></div>
+    <div class="container" v-html="content"></div>
   </div>
 </template>
 
@@ -124,7 +124,6 @@
 import html2canvas from 'html2canvas'
 import axios from 'axios'
 import { ref, nextTick } from 'vue'
-import { dom } from './dom'
 import { addGridBg, addWaterMark, tagAToDownload } from './utils'
 
 // 内置敏感词
@@ -172,8 +171,6 @@ const content = ref(null)
 const pagesRef = ref(null)
 // 预览地址
 const imgPreview = ref('')
-// 是否调试模式
-const debuggerMode = ref(false)
 // 是否显示网格
 const onGridChange = (e) => {
   gridMode.value = e.target.value
@@ -189,11 +186,9 @@ const onfirstPageChange = (e) => {
 
 // 调试按钮
 const onDebugger = () => {
-  debuggerMode.value = true
-  content.value = dom
-  nextTick(() => {
-    downloadImages()
-  })
+  const { protocol, hostname } = window.location
+  address.value = `${protocol}//${hostname}:4000/local.html`
+  onDownload()
 }
 // 下载事件
 const onDownload = () => {
@@ -201,7 +196,6 @@ const onDownload = () => {
     alert('请输入文章地址')
     return
   }
-  debuggerMode.value = false
   pagesRef.value.innerHTML = ''
   const { protocol, hostname } = window.location
   axios({
@@ -240,16 +234,16 @@ const onDownload = () => {
 // 下载图片
 const downloadImages = async () => {
   const pageTags = document.querySelectorAll('.page')
-  const pageList = Array.from(pageTags).slice(0, maxPage.value || 40)
+  const pageList = Array.from(pageTags).slice(0, maxPage.value || 60)
   pageList.forEach((p, i) => {
     setTimeout(() => {
       // 调试模式或只截首页
-      if (firstPage.value === '1' || debuggerMode.value) {
+      if (firstPage.value === '1') {
         i < 1 && getImage(p, i + 1)
       } else {
         getImage(p, i + 1)
       }
-    }, i * 300)
+    }, i * 500)
   })
 }
 
@@ -307,10 +301,8 @@ function getImage(targetEle, index) {
     // 调试用代码
     imgPreview.value = base64Url
 
-    if (!debuggerMode.value) {
-      const result = { url: base64Url, title: `${themeMode.value}_${index}.png` }
-      tagAToDownload(result)
-    }
+    const result = { url: base64Url, title: `${themeMode.value}_${index}.png` }
+    tagAToDownload(result)
     return base64Url
   })
 }
