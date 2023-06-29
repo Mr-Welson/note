@@ -130,10 +130,13 @@ import { addGridBg, addWaterMark, tagAToDownload } from './utils'
 const defaultWords = [
   ['霸凌', '霸0'],
   ['死', 'si'],
-  ['杀人', '鲨人'],
+  ['杀人', '沙人'],
   ['吸毒', '吸du'],
   ['强奸', '强*'],
-  ['自杀', '自鲨']
+  ['自杀', '自沙'],
+  ['裸体', '果体'],
+  ['全裸', '全果'],
+  ['娇喘', '姣喘'],
 ]
 // 页面比例
 // const aspectRatio = 3 / 4
