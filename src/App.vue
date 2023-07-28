@@ -109,7 +109,7 @@
           <input class="value" placeholder="请输入关键字" v-model="watermark" />
         </div>
       </div>
-      <button class="btn debugger_btn" @click="onDebugger">本地链接</button>
+      <button class="btn debugger_btn" @click="localHtml">本地链接</button>
       <button class="btn" @click="onDownload">下载图片</button>
     </div>
     <div class="preview">
@@ -137,6 +137,7 @@ const defaultWords = [
   ['裸体', '果体'],
   ['全裸', '全果'],
   ['娇喘', '姣喘'],
+  ['警察', '警查'],
 ]
 // 页面比例
 // const aspectRatio = 3 / 4
@@ -187,8 +188,8 @@ const onfirstPageChange = (e) => {
   firstPage.value = e.target.value
 }
 
-// 调试按钮
-const onDebugger = () => {
+// 本地链接
+const localHtml = () => {
   const { protocol, hostname } = window.location
   address.value = `${protocol}//${hostname}:4000/local.html`
   onDownload()
