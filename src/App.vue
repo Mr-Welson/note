@@ -22,6 +22,10 @@
           <input type="number" class="value" placeholder="请设置截图最大页码" v-model="maxPage" />
         </div>
         <div class="config_item">
+          <div class="label">尾页行数：</div>
+          <input type="number" class="value" placeholder="请设置尾页行数" v-model="lastPageSize" />
+        </div>
+        <div class="config_item">
           <div class="label">主题模式：</div>
           <div class="value radio_wrapper">
             <label>
@@ -43,29 +47,6 @@
                 :checked="themeMode === 'dark'"
               />
               <span class="dark_theme"></span>
-            </label>
-          </div>
-        </div>
-        <div class="config_item">
-          <div class="label">首页截图：</div>
-          <div class="value radio_wrapper">
-            <label>
-              <input
-                type="radio"
-                name="page"
-                value="1"
-                :checked="firstPage === '1'"
-                @change="onfirstPageChange"
-              />是
-            </label>
-            <label>
-              <input
-                type="radio"
-                name="page"
-                value="0"
-                :checked="firstPage === '0'"
-                @change="onfirstPageChange"
-              />否
             </label>
           </div>
         </div>
@@ -92,6 +73,55 @@
             </label>
           </div>
         </div>
+        <div class="config_item">
+          <div class="label">首页截图：</div>
+          <div class="value radio_wrapper">
+            <label>
+              <input
+                type="radio"
+                name="first-page"
+                value="1"
+                :checked="firstPage === '1'"
+                @change="onfirstPageChange"
+              />是
+            </label>
+            <label>
+              <input
+                type="radio"
+                name="first-page"
+                value="0"
+                :checked="firstPage === '0'"
+                @change="onfirstPageChange"
+              />否
+            </label>
+          </div>
+        </div>
+        <div class="config_item">
+          <div class="label">尾页截图：</div>
+          <div class="value radio_wrapper">
+            <label>
+              <input
+                type="radio"
+                name="last-page"
+                value="1"
+                :checked="lastPage === '1'"
+                @change="onlastPageChange"
+              />是
+            </label>
+            <label>
+              <input
+                type="radio"
+                name="last-page"
+                value="0"
+                :checked="lastPage === '0'"
+                @change="onlastPageChange"
+              />否
+            </label>
+          </div>
+        </div>
+        <div class="config_item">
+          <!-- 保持页面布局占位符 -->
+        </div>
         <!-- <div class="config_item">
           <div class="label">页面比例：</div>
           <select class="value select_item">
@@ -100,17 +130,17 @@
             <option value="1500">自定义(1080:1500)</option>
           </select>
         </div> -->
-        <div class="config_item watermark">
+        <div class="config_item full_item">
           <div class="label">敏感词：</div>
-          <input class="value" placeholder="格式: AA|A*,BB,B*" v-model="sensitiveWords" />
+          <input class="value" placeholder="格式: AA|A*,BB|B*" v-model="sensitiveWords" />
         </div>
-        <div class="config_item watermark">
+        <div class="config_item full_item">
           <div class="label">关键字：</div>
           <input class="value" placeholder="请输入关键字" v-model="watermark" />
         </div>
       </div>
-      <button class="btn debugger_btn" @click="localHtml">本地链接</button>
-      <button class="btn" @click="onDownload">下载图片</button>
+      <button class="btn plain" @click="localHtml">本地链接</button>
+      <button class="btn" @click="onDownload()">下载图片</button>
     </div>
     <div class="preview">
       <img :src="imgPreview" alt="" />
@@ -126,6 +156,9 @@ import axios from 'axios'
 import { ref, nextTick } from 'vue'
 import { addGridBg, addWaterMark, tagAToDownload } from './utils'
 
+// 默认使用用户名作为水印
+const username = '不要芋泥'
+
 // 内置敏感词
 const defaultWords = [
   ['霸凌', '霸0'],
@@ -137,7 +170,7 @@ const defaultWords = [
   ['裸体', '果体'],
   ['全裸', '全果'],
   ['娇喘', '姣喘'],
-  ['警察', '警查'],
+  ['警察', '警查']
 ]
 // 页面比例
 // const aspectRatio = 3 / 4
@@ -153,12 +186,16 @@ const gridMode = ref('0')
 const themeMode = ref('light')
 // 是否只截首页
 const firstPage = ref('0')
+// 是否只截尾页
+const lastPage = ref('0')
 // 水印内容, 为空时不打印水印
-const watermark = ref('')
-// 敏感词
+const watermark = ref(username)
+// 敏感词, 多个词用问号拼接
 const sensitiveWords = ref('')
 // 首页显示行数
 const firstPageSize = ref(5)
+// 尾页显示行数
+const lastPageSize = ref(5)
 // 页面显示行数
 const pageSize = ref(8)
 // 截取的最大页码数
@@ -186,6 +223,12 @@ const onThemeChange = (e) => {
 // 是否只截首页
 const onfirstPageChange = (e) => {
   firstPage.value = e.target.value
+  lastPage.value = '0'
+}
+// 是否只截尾页
+const onlastPageChange = (e) => {
+  lastPage.value = e.target.value
+  firstPage.value = '0'
 }
 
 // 本地链接
@@ -194,6 +237,7 @@ const localHtml = () => {
   address.value = `${protocol}//${hostname}:4000/local.html`
   onDownload()
 }
+
 // 下载事件
 const onDownload = () => {
   if (!address.value || !address.value.trim()) {
@@ -226,8 +270,9 @@ const onDownload = () => {
 
       content.value = contentValue
       nextTick(() => {
-        insertPages()
-        downloadImages()
+        const isOnlyLast = lastPage.value === '1'
+        insertPages(isOnlyLast)
+        downloadImages(isOnlyLast)
       })
     })
     .catch((err) => {
@@ -236,23 +281,31 @@ const onDownload = () => {
     })
 }
 // 下载图片
-const downloadImages = async () => {
+const downloadImages = async (isOnlyLast) => {
   const pageTags = document.querySelectorAll('.page')
   const pageList = Array.from(pageTags).slice(0, maxPage.value || 60)
   pageList.forEach((p, i) => {
-    setTimeout(() => {
-      // 调试模式或只截首页
-      if (firstPage.value === '1') {
-        i < 1 && getImage(p, i + 1)
-      } else {
+    // 只下载首页
+    if (firstPage.value === '1') {
+      i < 1 && getImage(p, i + 1)
+      return
+    }
+    // 只下载最后一页
+    if (isOnlyLast) {
+      if (i === pageList.length - 1) {
         getImage(p, i + 1)
       }
+      return
+    }
+    // 下载所有
+    setTimeout(() => {
+      getImage(p, i + 1)
     }, i * 500)
   })
 }
 
 // 解析 pages DOM
-function insertPages() {
+function insertPages(isOnlyLast) {
   // 所有的 P 标签
   const pList = document.querySelectorAll('p')
   // 组装一页的 P 标签
@@ -268,15 +321,37 @@ function insertPages() {
     // 大概比例为
     pCount = pCount + (Math.ceil(textLength / maxTextLength) + 1) * 0.5
 
-    // 第一页只截 firstPageSize 行 || 当页行数已满 || 最后一页
-    if (i === firstPageSize.value - 1 || pCount >= pageSize.value || i === pList.length - 1) {
+    // 手动设定最后一页
+
+    // 到达最大页码退出
+    if (pageNumber > maxPage.value + 1) {
+      return
+    }
+
+    // 最大行数限制条件
+    let maxPCount = pCount >= pageSize.value
+
+    // 单独下载设置最后一页时
+    if (isOnlyLast) {
+      if (pageNumber === maxPage.value || i === pList.length - 1) {
+        maxPCount = pCount >= lastPageSize.value
+      }
+    }
+
+    // 第一页只截 firstPageSize 行 || 当页已达到最大行数 || 最后一页
+    if (
+      (pageNumber === 1 && i === firstPageSize.value - 1) ||
+      maxPCount ||
+      i === pList.length - 1
+    ) {
       // 组装页
       const div = document.createElement('div')
       div.innerHTML = `<span class="page_number"> - ${pageNumber} -</span>`
       div.setAttribute('class', 'page')
       div.setAttribute('style', `height:${height}px`)
-      pagesRef.value.appendChild(div)
+      // 将组装好的虚拟 page 添加到真实 dom 中
       container.forEach((c) => div.appendChild(c))
+      pagesRef.value.appendChild(div)
       container = []
       pCount = 0
       pageNumber++

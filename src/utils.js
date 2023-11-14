@@ -24,27 +24,28 @@ export function addWaterMark(canvas, watermark, themeMode) {
   // 平铺水印
   let canvasWater = document.createElement('canvas')
   // 水印大小
-  const canvasWaterWidth = canvas.width / 6
-  const canvasWaterHeight = canvas.height / 12
+  const canvasWaterWidth = canvas.width / 3
+  const canvasWaterHeight = canvas.height / 3
   canvasWater.width = canvasWaterWidth
   canvasWater.height = canvasWaterHeight
 
   const ctxWater = canvasWater.getContext('2d')
+  // 水印尺寸边框(方便调试)
   // ctxWater.strokeStyle = 'rgba(255, 255, 255, 0.8)'
   // ctxWater.strokeRect(0, 0, canvasWaterWidth, canvasWaterHeight)
-  
-  ctxWater.font = '16px Microsoft Yahei'
+
+  ctxWater.font = '24px Microsoft Yahei'
   if (themeMode === 'dark') {
     ctxWater.fillStyle = 'rgba(255, 255, 255, 0.2)'
   } else {
     ctxWater.fillStyle = 'rgba(0, 0, 0, 0.15)'
   }
   // 水平水印
-  ctxWater.fillText(watermark, 30, 60)
+  // ctxWater.fillText(watermark, 30, 60)
   // 旋转水印
-  // ctxWater.rotate((-20 * Math.PI) / 180)
-  // ctxWater.fillText(watermark, 0, canvasWater.height / 2 + 20)
-  // ctxWater.rotate((20 * Math.PI) / 180)
+  ctxWater.rotate((-20 * Math.PI) / 180)
+  ctxWater.fillText(watermark, 0, canvasWater.height / 2 + 20)
+  ctxWater.rotate((20 * Math.PI) / 180)
 
   // 绘制重复的水印
   ctx.fillStyle = ctx.createPattern(canvasWater, 'repeat')
